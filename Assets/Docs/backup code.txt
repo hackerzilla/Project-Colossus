@@ -1,0 +1,160 @@
+//THIS CODE WAS IN TestRope.cs AND WAS REMOVED AND PASTED HERE ON 4-9-2019 8:22 PM
+
+void RetractSpringVersion1() {
+		//switch the node's joints then set distance = 0.005 and frequency
+
+//		node1Index = Nodes.Count - 2;
+//
+//		node2Index = node1Index + 1;
+
+		GameObject node = Nodes [node1Index];
+
+		GameObject node2 = Nodes [node2Index];
+
+
+		HingeJoint2D nodeHinge = node.GetComponent<HingeJoint2D> ();
+
+		SpringJoint2D nodeSpring = node.GetComponent<SpringJoint2D> ();
+
+	
+
+		node.GetComponent<SpringJoint2D> ().enabled = true;
+
+		nodeSpring.connectedBody = nodeHinge.connectedBody;
+
+		nodeSpring.distance = springJointDistance;
+
+		nodeSpring.autoConfigureDistance = false;
+
+		nodeSpring.frequency = springJointFrequency;
+
+		nodeSpring.dampingRatio = 0;
+
+		node.GetComponent<HingeJoint2D> ().enabled = false; 
+
+		Debug.Log ("Distance between node1 and node2: " + Vector2.Distance(node.transform.position, nodeSpring.connectedBody.gameObject.transform.position));
+
+		if (Vector2.Distance(node.transform.position, nodeSpring.connectedBody.gameObject.transform.position) <= springJointDeletionDistanceThreshold) {  //if the previous node reaches the higher one delete the node
+
+			node2.GetComponent<HingeJoint2D> ().connectedBody = nodeSpring.connectedBody;
+
+			Destroy (node);
+
+			Nodes.RemoveAt (1);
+
+		}
+
+	}
+
+	void RetractSpringVersion2(bool yesNo) {
+		//this function will try to contract the top most node from the Hook in order to reel in the rope
+	
+
+
+		if (yesNo) {
+
+			GameObject hook = GetComponentInParent<TestRope>().gameObject;
+			//get hook
+			HingeJoint2D hinge = hook.GetComponent<HingeJoint2D> ();
+
+			SpringJoint2D spring = hook.GetComponent<SpringJoint2D> ();
+			//get connected node
+			GameObject node = Nodes[Nodes.Count - 1];
+			//activate hook spring
+			spring.enabled = true;
+			//connect it to node
+			spring.connectedBody = hinge.connectedBody;
+			//set the variables as properties of the spring joint
+			spring.frequency = springJointFrequency;
+
+			spring.distance = springJointDistance;
+
+			spring.dampingRatio = springJointDampingRatio;
+			// disable hinge
+			hinge.enabled = false;
+			//if the node gets within the threshold, then delete it from the Nodes list and delete the GameObject
+			if (Vector2.Distance(hook.transform.position, node.transform.position) >= springJointDeletionDistanceThreshold) {
+
+				Nodes.RemoveAt(Nodes.Count - 1);
+
+				Destroy (node);
+
+				Rigidbody2D nextNode = Nodes [Nodes.Count - 1].GetComponent<Rigidbody2D>();
+
+				spring.connectedBody = nextNode;
+
+				hinge.connectedBody = nextNode;
+
+			}
+			//set the next node as the connectedBody for the hook
+
+		} else {
+			GameObject hook = GetComponentInParent<TestRope>().gameObject;
+			//get hook
+			HingeJoint2D hinge = hook.GetComponent<HingeJoint2D> ();
+
+			SpringJoint2D spring = hook.GetComponent<SpringJoint2D> ();
+
+
+			hinge.enabled = true;
+
+			spring.enabled = false;
+
+		}
+	}
+
+	void ReplaceHingeJointsWithSprings () {
+
+		for (int i = 0; i < Nodes.Count; i++) {
+
+
+
+			SpringJoint2D spring = Nodes [i].GetComponent<SpringJoint2D> ();
+
+			HingeJoint2D hinge = Nodes [i].GetComponent<HingeJoint2D> ();
+
+			if (hinge.connectedBody.gameObject.tag == "Player") {
+
+				//do nothing
+
+			} else {
+
+				spring.enabled = true;
+
+				spring.connectedBody = hinge.connectedBody;
+
+				spring.frequency = springJointFrequency;
+
+				spring.dampingRatio = springJointDampingRatio;
+
+				spring.autoConfigureDistance = false;
+
+				spring.distance = springJointDistance;
+
+				hinge.enabled = false;
+			}
+
+		}
+	}
+
+
+	void ResetHingeJoints () {
+
+		for (int i = 0; i < Nodes.Count; i++) {
+
+			SpringJoint2D spring = Nodes [i].GetComponent<SpringJoint2D> ();
+
+			HingeJoint2D hinge = Nodes [i].GetComponent<HingeJoint2D> ();
+
+
+			if (hinge.enabled == false) {
+
+				hinge.enabled = true;
+
+				spring.enabled = false;
+
+			} 
+
+		}
+
+	}
