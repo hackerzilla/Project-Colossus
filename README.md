@@ -1,2 +1,3 @@
 # Project-Colossus
-this is just a dumb game
+this is just a silly game prototype
+
